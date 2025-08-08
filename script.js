@@ -1,421 +1,367 @@
-// Global variables
+// Estado Global
 let currentServiceSlide = 0;
 let currentPortfolioIndex = 0;
 let currentCertificationIndex = 0;
 let isSubmitting = false;
 
-// Portfolio data
+// Dados do Portfólio
 const portfolioItems = [
-  {
-    title: 'Honda Civic',
-    beforeImage: '/img/portfolio-civic-antes.png',
-    afterImage: '/img/portfolio-civic-depois.png'
-  },
-  {
-    title: 'Volkswagen Golf',
-    beforeImage: '/img/portfolio-golf-antes.png',
-    afterImage: '/img/portfolio-golf-depois.png'
-  },
-  {
-    title: 'Toyota Corolla',
-    beforeImage: '/img/portfolio-corolla-antes.png',
-    afterImage: '/img/portfolio-corolla-depois.png'
-  },
-  {
-    title: 'Ford Focus',
-    beforeImage: '/img/portfolio-focus-antes.png',
-    afterImage: '/img/portfolio-focus-depois.png'
-  }
+  { title: "Honda Civic", beforeImage: "/img/portfolio-civic-antes.png", afterImage: "/img/portfolio-civic-depois.png" },
+  { title: "Volkswagen Golf", beforeImage: "/img/portfolio-golf-antes.png", afterImage: "/img/portfolio-golf-depois.png" },
+  { title: "Toyota Corolla", beforeImage: "/img/portfolio-corolla-antes.png", afterImage: "/img/portfolio-corolla-depois.png" },
+  { title: "Ford Focus", beforeImage: "/img/portfolio-focus-antes.png", afterImage: "/img/portfolio-focus-depois.png" }
 ];
 
-// Certifications data
+// Dados de Certificações
 const certifications = [
-  { name: 'Porto Seguro', logo: '/img/logo-porto-seguro.png' },
-  { name: 'Bradesco Seguros', logo: '/img/logo-bradesco-seguros.png' },
-  { name: 'Allianz Seguros', logo: '/img/logo-allianz.png' },
-  { name: 'SulAmérica', logo: '/img/logo-sulamerica.png' },
-  { name: 'Mapfre', logo: '/img/logo-mapfre.png' },
-  { name: 'Azul Seguros', logo: '/img/logo-azul-seguros.png' },
-  { name: 'Liberty Seguros', logo: '/img/logo-liberty.png' },
-  { name: 'HDI Seguros', logo: '/img/logo-hdi.png' }
+  { name: "Porto Seguro", logo: "/img/logo-porto-seguro.png" },
+  { name: "Bradesco Seguros", logo: "/img/logo-bradesco-seguros.png" },
+  { name: "Allianz Seguros", logo: "/img/logo-allianz.png" },
+  { name: "SulAmérica", logo: "/img/logo-sulamerica.png" },
+  { name: "Mapfre", logo: "/img/logo-mapfre.png" },
+  { name: "Azul Seguros", logo: "/img/logo-azul-seguros.png" },
+  { name: "Liberty Seguros", logo: "/img/logo-liberty.png" },
+  { name: "HDI Seguros", logo: "/img/logo-hdi.png" }
 ];
 
-// Color system
+// Sistema de Cores
 const colors = {
-  red: { primary: '#EA4335', hover: '#C53030', light: 'rgba(234, 67, 53, 0.1)', shadow: 'rgba(234, 67, 53, 0.3)' },
-  blue: { primary: '#4285F4', hover: '#1a73e8', light: 'rgba(66, 133, 244, 0.1)', shadow: 'rgba(66, 133, 244, 0.3)' },
-  yellow: { primary: '#FBBC05', hover: '#ea8600', light: 'rgba(251, 188, 5, 0.1)', shadow: 'rgba(251, 188, 5, 0.3)' },
-  green: { primary: '#34A853', hover: '#137333', light: 'rgba(52, 168, 83, 0.1)', shadow: 'rgba(52, 168, 83, 0.3)' }
+  red:   { primary: "#EA4335", hover: "#C53030", light: "rgba(234, 67, 53, 0.1)", shadow: "rgba(234, 67, 53, 0.3)" },
+  blue:  { primary: "#4285F4", hover: "#1a73e8", light: "rgba(66, 133, 244, 0.1)", shadow: "rgba(66, 133, 244, 0.3)" },
+  yellow:{ primary: "#FBBC05", hover: "#ea8600", light: "rgba(251, 188, 5, 0.1)", shadow: "rgba(251, 188, 5, 0.3)" },
+  green: { primary: "#34A853", hover: "#137333", light: "rgba(52, 168, 83, 0.1)", shadow: "rgba(52, 168, 83, 0.3)" },
 };
+const colorNames = { red: "Vermelho", blue: "Azul", yellow: "Amarelo", green: "Verde" };
 
-const colorNames = {
-  red: 'Vermelho',
-  blue: 'Azul',
-  yellow: 'Amarelo',
-  green: 'Verde'
-};
-
-// Toast System
-function showToast(title, description, variant = 'info', duration = 5000) {
-  const toastContainer = document.getElementById('toast-container');
-  const toastId = 'toast-' + Date.now();
-  
-  const icons = {
-    success: 'fas fa-check-circle',
-    error: 'fas fa-exclamation-circle',
-    warning: 'fas fa-exclamation-triangle',
-    info: 'fas fa-info-circle'
-  };
-
-  const toast = document.createElement('div');
-  toast.className = `toast ${variant}`;
-  toast.id = toastId;
-  toast.innerHTML = `
-    <i class="${icons[variant]}"></i>
-    <div class="toast-content">
-      <div class="toast-title">${title}</div>
-      ${description ? `<div class="toast-description">${description}</div>` : ''}
-    </div>
-    <button class="toast-close" onclick="removeToast('${toastId}')">
-      <i class="fas fa-times"></i>
-    </button>
-  `;
-
-  toastContainer.appendChild(toast);
-  
-  // Trigger animation
-  setTimeout(() => toast.classList.add('show'), 100);
-  
-  // Auto remove
-  setTimeout(() => removeToast(toastId), duration);
-}
-
-function removeToast(toastId) {
-  const toast = document.getElementById(toastId);
-  if (toast) {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300);
-  }
-}
-
-// Scroll Reveal Animation
-function initScrollReveal() {
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const delay = entry.target.dataset.delay || 0;
-        setTimeout(() => {
-          entry.target.classList.add('revealed');
-        }, delay);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, observerOptions);
-
-  document.querySelectorAll('.scroll-reveal').forEach(el => {
-    observer.observe(el);
-  });
-}
-
-// Navbar functionality
-function initNavbar() {
-  const navbar = document.getElementById('navbar');
-  const hamburger = document.getElementById('hamburger');
-  const navMenu = document.getElementById('nav-menu');
-  const navLinks = document.querySelectorAll('.nav-link');
-
-  // Scroll effect
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-      navbar.classList.add('scrolled');
+/* Utils DOM seguros (evita innerHTML para prevenir problemas) [NO_DANGEROUS_HTML] */
+function el(tag, className, attrs = {}) {
+  const e = document.createElement(tag);
+  if (className) e.className = className;
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "text") e.textContent = String(v);
+    else if (k === "html") e.innerText = String(v); // evita inserir HTML cru
+    else if (k in e) {
+      try { e[k] = v; } catch {}
     } else {
-      navbar.classList.remove('scrolled');
+      e.setAttribute(k, v);
     }
+  }
+  return e;
+}
 
-    // Active section highlighting
-    let current = '';
-    const sections = document.querySelectorAll('section');
-    sections.forEach(section => {
+/* Toast */
+function showToast(title, description, variant = "info", duration = 5000) {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+
+  const toastId = `toast-${Date.now()}`;
+  const toast = el("div", `toast ${variant}`);
+  toast.id = toastId;
+
+  const iconMap = {
+    success: "fas fa-check-circle",
+    error: "fas fa-exclamation-circle",
+    warning: "fas fa-exclamation-triangle",
+    info: "fas fa-info-circle",
+  };
+
+  const icon = el("i", iconMap[variant] || iconMap.info, { "aria-hidden": "true" });
+  const content = el("div", "toast-content");
+  const titleEl = el("div", "toast-title", { text: title });
+  content.appendChild(titleEl);
+  if (description) {
+    const descEl = el("div", "toast-description", { text: description });
+    content.appendChild(descEl);
+  }
+  const closeBtn = el("button", "toast-close", { "aria-label": "Fechar" });
+  closeBtn.appendChild(el("i", "fas fa-times", { "aria-hidden": "true" }));
+  closeBtn.addEventListener("click", () => removeToast(toastId));
+
+  toast.appendChild(icon);
+  toast.appendChild(content);
+  toast.appendChild(closeBtn);
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => toast.classList.add("show"));
+  if (duration > 0) {
+    setTimeout(() => removeToast(toastId), duration);
+  }
+}
+function removeToast(id) {
+  const t = document.getElementById(id);
+  if (!t) return;
+  t.classList.remove("show");
+  setTimeout(() => t.remove(), 300);
+}
+
+/* Scroll Reveal */
+function initScrollReveal() {
+  const items = document.querySelectorAll(".scroll-reveal");
+  if (!items.length) return;
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const delay = Number(entry.target.dataset.delay || 0);
+        setTimeout(() => {
+          entry.target.classList.add("revealed");
+        }, delay);
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+  items.forEach((el) => observer.observe(el));
+}
+
+/* Navbar */
+function initNavbar() {
+  const navbar = document.getElementById("navbar");
+  const hamburger = document.getElementById("hamburger");
+  const navMenu = document.getElementById("nav-menu");
+  const navLinks = document.querySelectorAll(".nav-link");
+
+  if (!navbar) return;
+
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 50) navbar.classList.add("scrolled");
+    else navbar.classList.remove("scrolled");
+
+    let current = "";
+    document.querySelectorAll("section[id]").forEach((section) => {
       const sectionTop = section.offsetTop;
-      if (window.scrollY >= sectionTop - 200) {
-        current = section.getAttribute('id');
-      }
+      if (window.scrollY >= sectionTop - 200) current = section.getAttribute("id") || "";
     });
-
-    navLinks.forEach(link => {
-      link.classList.remove('active');
-      if (link.getAttribute('href') === `#${current}`) {
-        link.classList.add('active');
-      }
+    navLinks.forEach((link) => {
+      link.classList.remove("active");
+      const href = link.getAttribute("href");
+      if (href === `#${current}`) link.classList.add("active");
     });
-  });
+  }, { passive: true });
 
-  // Mobile menu toggle
-  hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('active');
-    navMenu.classList.toggle('active');
-  });
+  if (hamburger && navMenu) {
+    hamburger.addEventListener("click", () => {
+      const isActive = hamburger.classList.toggle("active");
+      navMenu.classList.toggle("active");
+      hamburger.setAttribute("aria-expanded", String(isActive));
+    });
+  }
 
-  // Close mobile menu when clicking on a link
-  navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      hamburger.classList.remove('active');
-      navMenu.classList.remove('active');
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      hamburger?.classList.remove("active");
+      navMenu?.classList.remove("active");
+      hamburger?.setAttribute("aria-expanded", "false");
     });
   });
 
-  // Smooth scrolling
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", (e) => {
+      const targetSel = anchor.getAttribute("href");
+      if (!targetSel) return;
+      const target = document.querySelector(targetSel);
       if (target) {
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
+        e.preventDefault();
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     });
   });
 }
 
-// Services slider - CORRIGIDO
+/* Slider de Serviços */
 function initServicesSlider() {
-  const slides = document.querySelectorAll('.slide');
-  const serviceItems = document.querySelectorAll('.service-item');
-  const prevBtn = document.querySelector('.prev-btn');
-  const nextBtn = document.querySelector('.next-btn');
-  const sliderNav = document.querySelector('.slider-nav');
-
-  // Garantir que os botões estejam sempre visíveis
-  if (sliderNav) {
-    sliderNav.style.opacity = '1';
-    sliderNav.style.visibility = 'visible';
-    sliderNav.style.zIndex = '10';
-  }
+  const slides = document.querySelectorAll(".slide");
+  const serviceItems = document.querySelectorAll(".service-item");
+  const prevBtn = document.querySelector(".prev-btn");
+  const nextBtn = document.querySelector(".next-btn");
+  const sliderNav = document.querySelector(".slider-nav");
+  if (!slides.length || !serviceItems.length) return;
 
   function showSlide(index) {
-    slides.forEach(slide => slide.classList.remove('active'));
-    serviceItems.forEach(item => item.classList.remove('active'));
+    slides.forEach((s) => s.classList.remove("active"));
+    serviceItems.forEach((i) => {
+      i.classList.remove("active");
+      i.setAttribute("aria-selected", "false");
+    });
 
-    slides[index].classList.add('active');
-    serviceItems[index].classList.add('active');
+    const slide = slides[index];
+    const item = serviceItems[index];
+    if (slide) slide.classList.add("active");
+    if (item) {
+      item.classList.add("active");
+      item.setAttribute("aria-selected", "true");
+    }
     currentServiceSlide = index;
 
-    // Garantir que os botões permaneçam visíveis após a troca
-    setTimeout(() => {
-      if (sliderNav) {
-        sliderNav.style.opacity = '1';
-        sliderNav.style.visibility = 'visible';
-      }
-    }, 50);
+    if (sliderNav) {
+      sliderNav.setAttribute("style", "opacity:1;visibility:visible;z-index:10;");
+    }
   }
 
   function nextSlide() {
     currentServiceSlide = (currentServiceSlide + 1) % slides.length;
     showSlide(currentServiceSlide);
   }
-
   function prevSlide() {
     currentServiceSlide = (currentServiceSlide - 1 + slides.length) % slides.length;
     showSlide(currentServiceSlide);
   }
 
-  if (nextBtn) {
-    nextBtn.addEventListener('click', nextSlide);
-    // Garantir visibilidade do botão
-    nextBtn.style.opacity = '1';
-    nextBtn.style.visibility = 'visible';
-  }
-  
-  if (prevBtn) {
-    prevBtn.addEventListener('click', prevSlide);
-    // Garantir visibilidade do botão
-    prevBtn.style.opacity = '1';
-    prevBtn.style.visibility = 'visible';
-  }
+  nextBtn?.addEventListener("click", nextSlide);
+  prevBtn?.addEventListener("click", prevSlide);
 
-  // Service item click handlers
   serviceItems.forEach((item, index) => {
-    item.addEventListener('click', () => {
-      showSlide(index);
-    });
+    item.addEventListener("click", () => showSlide(index));
   });
 
-  // Auto-play slider (pausar ao hover nos botões)
-  let autoPlayInterval = setInterval(nextSlide, 5000);
-  
-  // Pausar auto-play quando hover nos botões
-  if (sliderNav) {
-    sliderNav.addEventListener('mouseenter', () => {
-      clearInterval(autoPlayInterval);
-    });
-    
-    sliderNav.addEventListener('mouseleave', () => {
-      autoPlayInterval = setInterval(nextSlide, 5000);
-    });
-  }
-
-  // CORREÇÃO: Melhor tratamento de carregamento de imagens
+  // Preload imagens e garantir visibilidade inicial
   slides.forEach((slide, index) => {
-    const img = slide.querySelector('img');
-    
-    if (img) {
-      // Força o carregamento imediato da primeira imagem
-      if (index === 0) {
-        img.style.opacity = '1';
-        img.style.display = 'block';
-      }
-      
-      // Preload todas as imagens
-      const preloadImg = new Image();
-      preloadImg.onload = () => {
-        img.style.opacity = '1';
-        console.log(`Imagem ${index + 1} carregada com sucesso`);
-      };
-      preloadImg.onerror = () => {
-        console.error(`Erro ao carregar imagem ${index + 1}: ${img.src}`);
-        // Fallback para imagem placeholder
-        img.src = '/placeholder.svg?height=400&width=600&text=Serviço+' + (index + 1);
-      };
-      preloadImg.src = img.src;
+    const img = slide.querySelector("img");
+    if (!img) return;
+    if (index === 0) {
+      img.style.opacity = "1";
+      img.style.display = "block";
     }
+    const preloadImg = new Image();
+    preloadImg.onload = () => {
+      img.style.opacity = "1";
+    };
+    preloadImg.onerror = () => {
+      img.src = `/placeholder.svg?height=400&width=600&query=servico-${index + 1}`;
+    };
+    preloadImg.src = img.src;
   });
 
-  // Garantir que a primeira imagem e botões sejam visíveis
   setTimeout(() => {
-    const firstSlide = slides[0];
-    const firstImg = firstSlide?.querySelector('img');
-    if (firstImg) {
-      firstImg.style.opacity = '1';
-      firstImg.style.display = 'block';
-    }
-    
-    // Forçar visibilidade dos botões na primeira imagem
     if (sliderNav) {
-      sliderNav.style.opacity = '1';
-      sliderNav.style.visibility = 'visible';
-      sliderNav.style.display = 'flex';
+      sliderNav.setAttribute("style", "opacity:1;visibility:visible;display:flex;");
     }
-    
-    // Garantir que os botões individuais estejam visíveis
-    [prevBtn, nextBtn].forEach(btn => {
-      if (btn) {
-        btn.style.opacity = '1';
-        btn.style.visibility = 'visible';
-        btn.style.display = 'flex';
-      }
+    [prevBtn, nextBtn].forEach((btn) => {
+      if (btn) btn.setAttribute("style", "opacity:1;visibility:visible;display:flex;");
     });
   }, 100);
 
-  // Inicializar com o primeiro slide ativo
+  let autoPlay = setInterval(nextSlide, 5000);
+  sliderNav?.addEventListener("mouseenter", () => clearInterval(autoPlay));
+  sliderNav?.addEventListener("mouseleave", () => (autoPlay = setInterval(nextSlide, 5000)));
+
   showSlide(0);
 }
 
-// Portfolio slider
+/* Portfólio */
 function initPortfolioSlider() {
-  const portfolioGrid = document.getElementById('portfolio-grid');
-  const portfolioDots = document.getElementById('portfolio-dots');
-  const prevBtn = document.querySelector('.prev-portfolio');
-  const nextBtn = document.querySelector('.next-portfolio');
+  const grid = document.getElementById("portfolio-grid");
+  const dots = document.getElementById("portfolio-dots");
+  const prevBtn = document.querySelector(".prev-portfolio");
+  const nextBtn = document.querySelector(".next-portfolio");
+  if (!grid || !dots) return;
 
-  // Create portfolio cards array
-  const allCards = portfolioItems.flatMap(item => [
-    {
-      type: 'before',
-      title: item.title,
-      image: item.beforeImage,
-      label: 'Antes'
-    },
-    {
-      type: 'after',
-      title: item.title,
-      image: item.afterImage,
-      label: 'Depois'
-    }
-  ]);
+  const allCards = portfolioItems.flatMap((item) => ([
+    { type: "before", title: item.title, image: item.beforeImage, label: "Antes" },
+    { type: "after", title: item.title, image: item.afterImage, label: "Depois" },
+  ]));
 
   function renderPortfolio() {
-    const visibleCards = allCards.slice(currentPortfolioIndex, currentPortfolioIndex + 2);
-    
-    portfolioGrid.innerHTML = visibleCards.map(card => `
-      <div class="portfolio-card">
-        <div class="portfolio-image">
-          <img src="${card.image}" alt="${card.title} - ${card.label}">
-          <div class="portfolio-label ${card.type}">${card.label}</div>
-        </div>
-        <div class="portfolio-content">
-          <h4>${card.title}</h4>
-          <p>${card.type === 'before' ? 'Estado inicial' : 'Resultado final'}</p>
-        </div>
-      </div>
-    `).join('');
+    grid.innerHTML = "";
+    const fragment = document.createDocumentFragment();
+    const visible = allCards.slice(currentPortfolioIndex, currentPortfolioIndex + 2);
+
+    visible.forEach((card) => {
+      const cardEl = el("div", "portfolio-card");
+      const imgWrap = el("div", "portfolio-image");
+      const img = el("img", "", {
+        src: card.image,
+        alt: `${card.title} - ${card.label}`,
+        loading: "lazy",
+        decoding: "async",
+      });
+      img.onerror = () => {
+        img.src = "/antes-depois.png";
+      };
+
+      const label = el("div", `portfolio-label ${card.type}`, { text: card.label });
+      imgWrap.appendChild(img);
+      imgWrap.appendChild(label);
+
+      const content = el("div", "portfolio-content");
+      content.appendChild(el("h4", "", { text: card.title }));
+      content.appendChild(el("p", "", { text: card.type === "before" ? "Estado inicial" : "Resultado final" }));
+
+      cardEl.appendChild(imgWrap);
+      cardEl.appendChild(content);
+
+      fragment.appendChild(cardEl);
+    });
+
+    grid.appendChild(fragment);
   }
 
   function renderDots() {
+    dots.innerHTML = "";
     const totalSlides = Math.ceil(allCards.length / 2);
-    portfolioDots.innerHTML = Array.from({ length: totalSlides }, (_, index) => 
-      `<div class="portfolio-dot ${Math.floor(currentPortfolioIndex / 2) === index ? 'active' : ''}" data-index="${index * 2}"></div>`
-    ).join('');
-
-    // Add click handlers to dots
-    portfolioDots.querySelectorAll('.portfolio-dot').forEach(dot => {
-      dot.addEventListener('click', () => {
-        currentPortfolioIndex = parseInt(dot.dataset.index);
-        renderPortfolio();
-        renderDots();
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = el("div", "portfolio-dot" + (Math.floor(currentPortfolioIndex / 2) === i ? " active" : ""));
+      dot.dataset.index = String(i * 2);
+      dot.setAttribute("role", "tab");
+      dot.setAttribute("aria-label", `Ir para o slide ${i + 1}`);
+      dot.addEventListener("click", () => {
+        currentPortfolioIndex = parseInt(dot.dataset.index || "0", 10);
+        renderPortfolio(); renderDots();
       });
-    });
+      frag.appendChild(dot);
+    }
+    dots.appendChild(frag);
   }
 
   function nextPortfolio() {
     currentPortfolioIndex = currentPortfolioIndex + 2 >= allCards.length ? 0 : currentPortfolioIndex + 2;
-    renderPortfolio();
-    renderDots();
+    renderPortfolio(); renderDots();
   }
-
   function prevPortfolio() {
     currentPortfolioIndex = currentPortfolioIndex - 2 < 0 ? allCards.length - 2 : currentPortfolioIndex - 2;
-    renderPortfolio();
-    renderDots();
+    renderPortfolio(); renderDots();
   }
 
-  if (nextBtn) nextBtn.addEventListener('click', nextPortfolio);
-  if (prevBtn) prevBtn.addEventListener('click', prevPortfolio);
+  nextBtn?.addEventListener("click", nextPortfolio);
+  prevBtn?.addEventListener("click", prevPortfolio);
 
-  // Initial render
   renderPortfolio();
   renderDots();
 }
 
-// Certifications carousel
+/* Certificações */
 function initCertificationsCarousel() {
-  const carousel = document.getElementById('certifications-carousel');
-  const indicators = document.getElementById('certifications-indicators');
+  const carousel = document.getElementById("certifications-carousel");
+  const indicators = document.getElementById("certifications-indicators");
+  if (!carousel || !indicators) return;
 
   function renderCertifications() {
-    const visibleCerts = [];
+    carousel.innerHTML = "";
+    const frag = document.createDocumentFragment();
     for (let i = 0; i < 4; i++) {
-      const index = (currentCertificationIndex + i) % certifications.length;
-      visibleCerts.push(certifications[index]);
+      const idx = (currentCertificationIndex + i) % certifications.length;
+      const cert = certifications[idx];
+      const card = el("div", "certification-card", { style: `animation-delay: ${i * 0.1}s` });
+      const img = el("img", "", { alt: `Logo ${cert.name}`, loading: "lazy", decoding: "async" });
+      img.src = cert.logo;
+      img.onerror = () => {
+        img.src = "/insurance-logo.png";
+      };
+      card.appendChild(img);
+      frag.appendChild(card);
     }
-
-    carousel.innerHTML = visibleCerts.map((cert, index) => `
-      <div class="certification-card" style="animation-delay: ${index * 0.1}s">
-        <img src="${cert.logo}" alt="Logo ${cert.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjYwIiB2aWV3Qm94PSIwIDAgMTIwIDYwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iNjAiIGZpbGw9IiNmM2Y0ZjYiLz48dGV4dCB4PSI2MCIgeT0iMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+JHtjZXJ0Lm5hbWV9PC90ZXh0Pjwvc3ZnPg=='">
-      </div>
-    `).join('');
+    carousel.appendChild(frag);
   }
 
   function renderIndicators() {
-    indicators.innerHTML = certifications.map((_, index) => 
-      `<div class="cert-indicator ${index === currentCertificationIndex ? 'active' : ''}"></div>`
-    ).join('');
+    indicators.innerHTML = "";
+    const frag = document.createDocumentFragment();
+    certifications.forEach((_, index) => {
+      const ind = el("div", "cert-indicator" + (index === currentCertificationIndex ? " active" : ""));
+      frag.appendChild(ind);
+    });
+    indicators.appendChild(frag);
   }
 
   function nextCertification() {
@@ -424,170 +370,136 @@ function initCertificationsCarousel() {
     renderIndicators();
   }
 
-  // Auto-play
-  setInterval(nextCertification, 3000);
-
-  // Initial render
   renderCertifications();
   renderIndicators();
+  setInterval(nextCertification, 3000);
 }
 
-// FAQ functionality
+/* FAQ */
 function initFAQ() {
-  const faqItems = document.querySelectorAll('.faq-item');
+  const items = document.querySelectorAll(".faq-item");
+  if (!items.length) return;
 
-  faqItems.forEach(item => {
-    const question = item.querySelector('.faq-question');
-    
-    question.addEventListener('click', () => {
-      const isActive = item.classList.contains('active');
-      
-      // Close all other items
-      faqItems.forEach(otherItem => {
-        otherItem.classList.remove('active');
-      });
-      
-      // Toggle current item
-      if (!isActive) {
-        item.classList.add('active');
-      }
+  items.forEach((item) => {
+    const question = item.querySelector(".faq-question");
+    if (!question) return;
+    question.addEventListener("click", () => {
+      const isActive = item.classList.contains("active");
+      items.forEach((it) => it.classList.remove("active"));
+      if (!isActive) item.classList.add("active");
     });
   });
 }
 
-// Form handling
+/* Formulários */
 function initForms() {
-  const forms = document.querySelectorAll('.contact-form');
+  const forms = document.querySelectorAll(".contact-form");
+  if (!forms.length) return;
 
-  forms.forEach(form => {
-    form.addEventListener('submit', async (e) => {
+  forms.forEach((form) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      
       if (isSubmitting) return;
-      
-      const button = form.querySelector('.btn-primary');
-      const btnText = button.querySelector('.btn-text');
-      const loadingSpinner = button.querySelector('.loading-spinner');
-      
-      // Start loading state
+      const button = form.querySelector(".btn-primary");
+      const btnText = button?.querySelector(".btn-text");
+      const loadingSpinner = button?.querySelector(".loading-spinner");
+
       isSubmitting = true;
-      button.classList.add('loading');
-      button.disabled = true;
-      loadingSpinner.style.display = 'flex';
-      btnText.style.display = 'none';
+      button?.classList.add("loading");
+      if (button) button.disabled = true;
+      if (loadingSpinner) loadingSpinner.style.display = "flex";
+      if (btnText) btnText.style.display = "none";
 
       try {
-        // Simulate form submission
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Success
+        // Simulação de envio
+        await new Promise((r) => setTimeout(r, 1200));
         form.reset();
-        showToast(
-          'Sucesso!',
-          form.id === 'hero-form' 
-            ? 'Orçamento solicitado com sucesso! Entraremos em contato em breve.'
-            : 'Mensagem enviada com sucesso! Entraremos em contato em breve.',
-          'success'
-        );
-        
-      } catch (error) {
-        // Error
-        showToast(
-          'Erro!',
-          'Ocorreu um erro ao enviar. Tente novamente.',
-          'error'
-        );
+        showToast("Sucesso!", form.id === "hero-form" ? "Orçamento solicitado com sucesso! Entraremos em contato em breve." : "Mensagem enviada com sucesso! Entraremos em contato em breve.", "success", 3500);
+      } catch {
+        showToast("Erro!", "Ocorreu um erro ao enviar. Tente novamente.", "error");
       } finally {
-        // Reset loading state
         isSubmitting = false;
-        button.classList.remove('loading');
-        button.disabled = false;
-        loadingSpinner.style.display = 'none';
-        btnText.style.display = 'inline';
+        button?.classList.remove("loading");
+        if (button) button.disabled = false;
+        if (loadingSpinner) loadingSpinner.style.display = "none";
+        if (btnText) btnText.style.display = "inline";
       }
     });
   });
 }
 
-// Color selector
+/* Seletor de Cor */
 function initColorSelector() {
-  const colorSelector = document.getElementById('color-selector');
-  const colorToggle = document.getElementById('color-toggle');
-  const colorOptions = document.querySelectorAll('.color-option');
-  
-  let currentColor = localStorage.getItem('selectedColor') || 'red';
-  
-  // Apply saved color
+  const colorSelector = document.getElementById("color-selector");
+  const colorToggle = document.getElementById("color-toggle");
+  const colorOptions = document.querySelectorAll(".color-option");
+  if (!colorSelector || !colorToggle || !colorOptions.length) return;
+
+  let currentColor = localStorage.getItem("selectedColor") || "red";
   applyColor(currentColor);
   updateActiveColor(currentColor);
 
   function applyColor(color) {
     const colorData = colors[color];
+    if (!colorData) return;
     const root = document.documentElement;
-    
-    root.style.setProperty('--primary-color', colorData.primary);
-    root.style.setProperty('--primary-hover', colorData.hover);
-    root.style.setProperty('--primary-light', colorData.light);
-    root.style.setProperty('--primary-shadow', colorData.shadow);
-    
-    // Update toggle button
+    root.style.setProperty("--primary-color", colorData.primary);
+    root.style.setProperty("--primary-hover", colorData.hover);
+    root.style.setProperty("--primary-light", colorData.light);
+    root.style.setProperty("--primary-shadow", colorData.shadow);
+
     colorToggle.style.background = colorData.primary;
     colorToggle.style.boxShadow = `0 4px 15px ${colorData.shadow}`;
   }
 
   function updateActiveColor(color) {
-    colorOptions.forEach(option => {
-      option.classList.remove('active');
-    });
-    document.querySelector(`[data-color="${color}"]`).classList.add('active');
+    colorOptions.forEach((option) => option.classList.remove("active"));
+    const active = document.querySelector(`[data-color="${color}"]`);
+    active?.classList.add("active");
   }
 
-  // Toggle color selector
-  colorToggle.addEventListener('click', () => {
-    colorSelector.classList.toggle('expanded');
+  colorToggle.addEventListener("click", () => {
+    colorSelector.classList.toggle("expanded");
   });
 
-  // Color option clicks
-  colorOptions.forEach(option => {
-    option.addEventListener('click', () => {
-      const color = option.dataset.color;
+  colorOptions.forEach((option) => {
+    option.addEventListener("click", () => {
+      const color = option.dataset.color || "red";
       currentColor = color;
-      localStorage.setItem('selectedColor', color);
+      localStorage.setItem("selectedColor", color);
       applyColor(color);
       updateActiveColor(color);
-      colorSelector.classList.remove('expanded');
-      
-      showToast(
-        'Cor Alterada!',
-        `Tema alterado para ${colorNames[color]}!`,
-        'success',
-        3000
-      );
+      colorSelector.classList.remove("expanded");
+      showToast("Cor Alterada!", `Tema alterado para ${colorNames[color]}!`, "success", 2500);
+    });
+    option.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        option.click();
+      }
     });
   });
 
-  // Close selector when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!colorSelector.contains(e.target)) {
-      colorSelector.classList.remove('expanded');
-    }
+  document.addEventListener("click", (e) => {
+    if (!colorSelector.contains(e.target)) colorSelector.classList.remove("expanded");
   });
 }
 
-// WhatsApp button
+/* WhatsApp */
 function initWhatsApp() {
-  const whatsappButton = document.getElementById('whatsapp-button');
-  
-  whatsappButton.addEventListener('click', () => {
-    const phone = "5511999999999"; // Replace with actual phone number
+  const whatsappButton = document.getElementById("whatsapp-button");
+  if (!whatsappButton) return;
+
+  whatsappButton.addEventListener("click", () => {
+    const phone = "5511999999999"; // TODO: Atualize com o número real
     const message = "Olá! Gostaria de solicitar um orçamento para meu veículo.";
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
+    window.open(url, "_blank", "noopener,noreferrer");
   });
 }
 
-// Initialize everything when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+/* Inicialização */
+document.addEventListener("DOMContentLoaded", () => {
   initScrollReveal();
   initNavbar();
   initServicesSlider();
@@ -597,24 +509,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initForms();
   initColorSelector();
   initWhatsApp();
-  
-  console.log("Funilaria Website - Loaded successfully!");
-  
-  // Mostrar toast de confirmação do carregamento
-  setTimeout(() => {
-    showToast(
-      'Sistema Carregado!',
-      'Problema da imagem 1 na seção de serviços foi corrigido.',
-      'success',
-      4000
-    );
-  }, 1000);
+
+  // Removido: toast/pop-up automático "Problema da imagem corrigido"
+  // Mantemos o console limpo para produção.
 });
 
-// Handle window resize
-window.addEventListener('resize', () => {
-  // Reinitialize components that need resize handling
-  if (window.innerWidth <= 768) {
-    // Mobile specific adjustments
-  }
-});
+// Resize handler (mantido para futuras adaptações)
+window.addEventListener("resize", () => {
+  // Placeholder para lógicas específicas de mobile se necessário
+}, { passive: true });
